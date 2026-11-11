@@ -51,7 +51,10 @@ jobs:
       - name: Install QEMU user-mode build-time validation tool
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends qemu-user
+          sudo apt-get install -y --no-install-recommends qemu-user lld
+          command -v ld.lld
+          command -v qemu-arm
+          command -v qemu-aarch64
       - name: Cross-link and execute bounded static Linux targets
         shell: bash
         run: |
