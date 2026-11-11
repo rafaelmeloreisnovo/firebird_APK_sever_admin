@@ -1,0 +1,67 @@
+name: Firebird admin L0 scoped build
+
+on:
+  push:
+    paths:
+      - "src/raf_l0.c"
+      - "tests/raf_l0_host_test.c"
+      - "scripts/verify_l0.sh"
+      - "src/raf_l0_selfcheck.c"
+      - "src/platform/linux/**"
+      - "scripts/verify_linked_linux.sh"
+      - ".github/workflows/l0-freestanding.yml"
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  l0-objects-only:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - name: Checkout exact commit
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+      - name: Run bounded native gate
+        shell: bash
+        run: |
+          git rev-parse HEAD
+          sh scripts/verify_l0.sh
+      - name: Archive scoped objects and receipt (not APK)
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: firebird-admin-l0-relocatable-${{ github.run_id }}
+          path: |
+            out/raf_l0_*.o
+            out/elf_*.txt
+            out/undefined_*.txt
+            out/sha256.txt
+            out/receipt.txt
+          if-no-files-found: warn
+
+  l1-linked-linux:
+    needs: l0-objects-only
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact commit
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+      - name: Install QEMU user-mode build-time validation tool
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends qemu-user
+      - name: Cross-link and execute bounded static Linux targets
+        shell: bash
+        run: |
+          git rev-parse HEAD
+          sh scripts/verify_linked_linux.sh
+      - name: Archive Linux ELF and scoped evidence (NOT APK)
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: firebird-admin-l1-linux-elf-${{ github.run_id }}
+          path: |
+            out/linked-linux/**
+          if-no-files-found: warn
