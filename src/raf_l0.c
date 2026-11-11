@@ -7,7 +7,7 @@
 #if !defined(__SIZEOF_INT__) || (__SIZEOF_INT__ != 4)
 #error "L0 requires 32-bit unsigned int; unsupported toolchain"
 #endif
-#if !defined(__SIZEOF_CHAR__) || (__SIZEOF_CHAR__ != 1)
+#if !defined(__CHAR_BIT__) || (__CHAR_BIT__ != 8)
 #error "L0 requires 8-bit char; unsupported toolchain"
 #endif
 
