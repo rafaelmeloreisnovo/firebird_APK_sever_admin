@@ -27,7 +27,7 @@ jobs:
           sh scripts/verify_l0.sh
       - name: Archive scoped objects and receipt (not APK)
         if: always()
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: firebird-admin-l0-relocatable-${{ github.run_id }}
           path: |
