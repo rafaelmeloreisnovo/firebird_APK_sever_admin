@@ -1,12 +1,14 @@
 # firebird_APK_sever_admin
 Uso comercial restrito
 
-## Bootstrap L0 — proposta isolada
+## L0/L1 — proposta isolada
 Este repositório começou apenas com este README. O protótipo na branch de trabalho NÃO é um Firebird server, APK ou release.
 
 - Entrada canônica: [001_PONTEIRO/START_HERE.md](001_PONTEIRO/START_HERE.md)
-- Arquitetura, autoralidade e fronteiras: [docs/ARCHITECTURE_L0.md](docs/ARCHITECTURE_L0.md)
-- Núcleo C11 sem libc/sistema: [src/raf_l0.c](src/raf_l0.c)
-- Teste local/CI de objetos ET_REL: `sh scripts/verify_l0.sh`
+- Arquitetura L0 e limites: [docs/ARCHITECTURE_L0.md](docs/ARCHITECTURE_L0.md)
+- Linux L1 link/exec (sem libc): [docs/ARCHITECTURE_L1_LINUX.md](docs/ARCHITECTURE_L1_LINUX.md)
+- Núcleo C11 freestanding: [src/raf_l0.c](src/raf_l0.c)
+- Objetos ELF L0: `sh scripts/verify_l0.sh`
+- ELF estáticos Linux L1 com QEMU user-mode ARM: `sh scripts/verify_linked_linux.sh` (QEMU no host de teste).
 
-`Java/ART != C/ASM freestanding`. ARMv7, AArch64 e x86_64 são alvos binários distintos; o futuro APK é contêiner multi-ABI, não um único ELF executável em todas as CPUs. Sem cópia de código Firebird, OpenSSL ou outros terceiros nesta proposta. Licenças e interoperabilidade exigem avaliação antes da implementação.
+`Java/ART != C/ASM freestanding`. ARMv7, AArch64 e x86_64 são binários nativos distintos; o futuro APK é contêiner multi-ABI. Nenhum código Firebird/OpenSSL importado nesta proposta. A fronteira Linux inclui syscall de saída somente no adaptador ASM, não no núcleo. Android/device/TLS/licenças ainda dependem de gates separados.
