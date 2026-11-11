@@ -1,0 +1,39 @@
+name: Firebird admin L0 scoped build
+
+on:
+  push:
+    paths:
+      - "src/raf_l0.c"
+      - "tests/raf_l0_host_test.c"
+      - "scripts/verify_l0.sh"
+      - ".github/workflows/l0-freestanding.yml"
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  l0-objects-only:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - name: Checkout exact commit
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Run bounded native gate
+        shell: bash
+        run: |
+          git rev-parse HEAD
+          sh scripts/verify_l0.sh
+      - name: Archive scoped objects and receipt (not APK)
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: firebird-admin-l0-relocatable-${{ github.run_id }}
+          path: |
+            out/raf_l0_*.o
+            out/elf_*.txt
+            out/undefined_*.txt
+            out/sha256.txt
+            out/receipt.txt
+          if-no-files-found: warn

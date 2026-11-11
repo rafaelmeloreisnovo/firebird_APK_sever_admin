@@ -1,0 +1,6 @@
+/out/
+*.apk
+*.aab
+*.keystore
+*.jks
+local.properties
