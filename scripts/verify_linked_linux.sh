@@ -4,13 +4,13 @@ set -eu
 cd "$(dirname "$0")/.."
 mkdir -p out/linked-linux
 CC=${CC:-clang}
-command -v "$CC" >/dev/null
-command -v ld.lld >/dev/null
-command -v readelf >/dev/null
-command -v nm >/dev/null
-command -v sha256sum >/dev/null
-command -v qemu-arm >/dev/null
-command -v qemu-aarch64 >/dev/null
+for tool in "$CC" ld.lld readelf nm sha256sum qemu-arm qemu-aarch64 timeout
+do
+    if ! command -v "$tool" >/dev/null 2>&1; then
+        printf 'MISSING_HOST_TOOL=%s\n' "$tool" >&2
+        exit 127
+    fi
+done
 for entry in 'armv7a-linux-gnueabi armv7 armv7_start.S' \
              'aarch64-linux-gnu aarch64 aarch64_start.S' \
              'x86_64-linux-gnu x86_64 x86_64_start.S'
@@ -45,9 +45,9 @@ do
     nm -u "$elf" > "out/linked-linux/undefined_${abi}.txt"
     test ! -s "out/linked-linux/undefined_${abi}.txt"
     case "$abi" in
-      armv7) qemu-arm "$elf" ;;
-      aarch64) qemu-aarch64 "$elf" ;;
-      x86_64) "$elf" ;;
+      armv7) timeout 20s qemu-arm "$elf" ;;
+      aarch64) timeout 20s qemu-aarch64 "$elf" ;;
+      x86_64) timeout 20s "$elf" ;;
     esac
     printf '%s=PASS_EXIT_0\n' "$abi" >> "out/linked-linux/runtime-results.txt"
 done
